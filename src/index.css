@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.mb-author {
+  color : #D48158;
+  font-size : 18px;
+  font-weight : bold;
+  padding-top : 10px;
+  text-shadow : 0 1px 1px rgba(255, 255, 255, 0.1);
+  text-transform : uppercase;
+}
+
+
+.submit-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px;
+  margin-top: 50px;
+}
+
+.submit-row {
+  width: 100%;
+  display: flex;
+  /* background: yellow; */
+  justify-content: space-between;
+}
