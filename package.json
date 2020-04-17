@@ -1,16 +1,19 @@
 {
-  "name": "quotes-dapp",
+  "name": "demo-dapp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@biconomy/mexa": "^1.5.4",
+    "@material-ui/core": "^4.9.0",
     "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "web3": "^1.2.6"
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "eth-sig-util": "^2.5.2",
+    "ethereumjs-tx": "^2.1.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-notifications": "^1.4.3",
+    "react-scripts": "3.4.0",
+    "web3": "^1.2.5-rc.0"
   },
   "scripts": {
     "start": "PORT=4002 react-scripts start",
