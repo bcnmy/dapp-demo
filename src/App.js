@@ -33,8 +33,9 @@ function App() {
   useEffect(() => {
     web3 = new Web3(biconomy);
 
-    biconomy.onEvent(biconomy.READY, () => {
+    biconomy.onEvent(biconomy.READY, async () => {
       // Initialize your dapp here like getting user accounts etc
+      await window.ethereum.enable();
       contract = new web3.eth.Contract(config.contract.abi, config.contract.address);
       startApp();
     }).onEvent(biconomy.ERROR, (error, message) => {
