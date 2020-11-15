@@ -51,6 +51,7 @@ function App() {
       return;
     }
 
+    // NOTE: dappId is no longer needed in latest version of Biconomy SDK
     const biconomy = new Biconomy(window.ethereum, { dappId: "5e9a0fc5667350123f4de8fe", apiKey: "q9oEztJM8.e8ed08a7-5b38-48e3-b4c0-f66e6b66f407" });
 
     web3 = new Web3(biconomy);
