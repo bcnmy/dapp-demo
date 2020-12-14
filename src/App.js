@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import './App.css';
 import Web3 from 'web3'
 import Biconomy from "@biconomy/mexa";
+import { ethers } from "ethers";
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 const { config } = require("./config");
@@ -17,6 +18,8 @@ const showInfoMessage = message => {
 };
 
 let contract;
+let contractEthers;
+let signer;
 let domainData = {
   name: "Quote",
   version: "1",
@@ -36,6 +39,7 @@ const metaTransactionType = [
 ];
 
 let web3;
+let _ethers;
 
 function App() {
 
@@ -54,12 +58,16 @@ function App() {
     const biconomy = new Biconomy(window.ethereum, { dappId: "5e9a0fc5667350123f4de8fe", apiKey: "q9oEztJM8.e8ed08a7-5b38-48e3-b4c0-f66e6b66f407" });
 
     web3 = new Web3(biconomy);
+    _ethers = new ethers.providers.Web3Provider(biconomy);
 
     biconomy.onEvent(biconomy.READY, async () => {
       // Initialize your dapp here like getting user accounts etc
 
       await window.ethereum.enable();
+      let signer = _ethers.getSigner();
+      contractEthers = new ethers.Contract(config.contract.address, config.contract.abi ,signer);
       contract = new web3.eth.Contract(config.contract.abi, config.contract.address);
+      console.log(contractEthers);
       startApp();
     }).onEvent(biconomy.ERROR, (error, message) => {
       // Handle error while initializing mexa
@@ -74,6 +82,7 @@ function App() {
 
   async function startApp() {
     const result = await contract.methods.getQuote().call({ from: window.ethereum.selectedAddress });
+    const resultEthers = await contractEthers.getQuote();
     if (result.currentOwner !== "0x0000000000000000000000000000000000000000") {
       setQuote(result.currentQuote)
       setOwner(result.currentOwner)
@@ -83,7 +92,7 @@ function App() {
     console.log(window.ethereum.selectedAddress)
     setNewQuote("");
     console.log(contract)
-    let nonce = await contract.methods.nonces(window.ethereum.selectedAddress).call();
+    let nonce = await contractEthers.nonces(window.ethereum.selectedAddress);
     let message = {};
     message.nonce = parseInt(nonce);
     message.from = window.ethereum.selectedAddress;
@@ -97,46 +106,19 @@ function App() {
       primaryType: "MetaTransaction",
       message: message
     });
-
-    window.web3.currentProvider.sendAsync(
-      {
-        jsonrpc: "2.0",
-        id: 999999999999,
-        method: "eth_signTypedData_v4",
-        params: [window.ethereum.selectedAddress, dataToSign]
-      },
-      async function (err, result) {
-        if (err) {
-          return console.error(err);
-        }
-        const signature = result.result.substring(2);
+    const result = await _ethers.send("eth_signTypedData_v4",[window.ethereum.selectedAddress, dataToSign]);
+        const signature = result.substring(2);
         const r = "0x" + signature.substring(0, 64);
         const s = "0x" + signature.substring(64, 128);
         const v = parseInt(signature.substring(128, 130), 16);
-        console.log(r, "r")
-        console.log(s, "s")
-        console.log(v, "v")
+        console.log(r, "r");
+        console.log(s, "s");
+        console.log(v, "v");
         console.log(window.ethereum.address, "userAddress")
-
-        const promiEvent = contract.methods
-          .setQuoteMeta(window.ethereum.selectedAddress, newQuote, r, s, v)
-          .send({
-            from: window.ethereum.selectedAddress
-          })
-        promiEvent.on("transactionHash", (hash) => {
-          showInfoMessage("Transaction sent successfully. Check Console for Transaction hash")
-          console.log("Transaction Hash is ", hash)
-        }).once("confirmation", (confirmationNumber, receipt) => {
-          if (receipt.status) {
-            showSuccessMessage("Transaction processed successfully")
-            startApp()
-          } else {
-            showErrorMessage("Transaction Failed");
-          }
-          console.log(receipt)
-        })
-      }
-    );
+        //const tx = await contractEthers.populateTransaction.setQuoteMeta(window.ethereum.selectedAddress, newQuote, r, s, v,{from:window.ethereum.selectedAddress});
+        //await _ethers.send("eth_sendTransaction",[tx]);
+        await contractEthers.setQuoteMeta(window.ethereum.selectedAddress, newQuote, r, s, v);
+       // issue, a signer isn't being passed into Ethers provider by Biconomy
   }
   return (
     <div className="App">
