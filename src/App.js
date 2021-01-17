@@ -110,32 +110,38 @@ function App() {
         if (err) {
           return console.error(err);
         }
-        const signature = result.result.substring(2);
-        const r = "0x" + signature.substring(0, 64);
-        const s = "0x" + signature.substring(64, 128);
-        const v = parseInt(signature.substring(128, 130), 16);
-        console.log(r, "r")
-        console.log(s, "s")
-        console.log(v, "v")
-        console.log(window.ethereum.address, "userAddress")
-
-        const promiEvent = contract.methods
-          .setQuoteMeta(window.ethereum.selectedAddress, newQuote, r, s, v)
-          .send({
-            from: window.ethereum.selectedAddress
+        console.log("Signature result from wallet :");
+        console.log(result);
+        if(result && result.result) {
+          const signature = result.result.substring(2);
+          const r = "0x" + signature.substring(0, 64);
+          const s = "0x" + signature.substring(64, 128);
+          const v = parseInt(signature.substring(128, 130), 16);
+          console.log(r, "r")
+          console.log(s, "s")
+          console.log(v, "v")
+          console.log(window.ethereum.address, "userAddress")
+  
+          const promiEvent = contract.methods
+            .setQuoteMeta(window.ethereum.selectedAddress, newQuote, r, s, v)
+            .send({
+              from: window.ethereum.selectedAddress
+            })
+          promiEvent.on("transactionHash", (hash) => {
+            showInfoMessage("Transaction sent successfully. Check Console for Transaction hash")
+            console.log("Transaction Hash is ", hash)
+          }).once("confirmation", (confirmationNumber, receipt) => {
+            if (receipt.status) {
+              showSuccessMessage("Transaction processed successfully")
+              startApp()
+            } else {
+              showErrorMessage("Transaction Failed");
+            }
+            console.log(receipt)
           })
-        promiEvent.on("transactionHash", (hash) => {
-          showInfoMessage("Transaction sent successfully. Check Console for Transaction hash")
-          console.log("Transaction Hash is ", hash)
-        }).once("confirmation", (confirmationNumber, receipt) => {
-          if (receipt.status) {
-            showSuccessMessage("Transaction processed successfully")
-            startApp()
-          } else {
-            showErrorMessage("Transaction Failed");
-          }
-          console.log(receipt)
-        })
+        } else {
+          showErrorMessage("Could not get user signature. Check console logs for error");
+        }
       }
     );
   }
