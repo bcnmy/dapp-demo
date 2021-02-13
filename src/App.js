@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './App.css';
 import Web3 from 'web3'
-import Biconomy from "@biconomy/mexa";
+import { Biconomy } from "@biconomy/mexa";
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 const { config } = require("./config");
@@ -51,8 +51,8 @@ function App() {
       return;
     }
 
-    // NOTE: dappId is no longer needed in latest version of Biconomy SDK
-    const biconomy = new Biconomy(window.ethereum, { dappId: "5e9a0fc5667350123f4de8fe", apiKey: "q9oEztJM8.e8ed08a7-5b38-48e3-b4c0-f66e6b66f407" });
+    //  Use the API Key you got from dashboard
+    const biconomy = new Biconomy(window.ethereum, { apiKey: "q9oEztJM8.e8ed08a7-5b38-48e3-b4c0-f66e6b66f407" });
 
     web3 = new Web3(biconomy);
 
